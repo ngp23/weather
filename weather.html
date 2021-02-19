@@ -1,0 +1,260 @@
+<style>
+	body {
+		background-image: 
+        url("https://www.metoffice.gov.uk/binaries/content/gallery/metofficegovuk/hero-images/science/weather-forecast-background.jpg");
+		background-repeat: no-repeat;
+		background-size: cover;
+	}
+	#spinner {
+		width: 50px;
+		height: 50px;
+		border: 10px solid black;
+		background: white;
+		margin: 3em auto;
+		border-radius: 50px;
+		border-top: 10px solid rgb(0,125,255);
+		animation: spin 4s linear infinite;
+	}
+	@keyframes spin {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+
+    #left {
+		border: 15px outset;
+        border-radius: 20px;
+        border-color: rgb(20, 50, 200);
+		width: 50%;
+		margin: auto;
+		margin-top: 10%;
+		text-align: left;
+        animation: myanim 1s infinite;
+        background-color: #ccccccce;
+		padding: 10px;
+	}
+    @keyframes myanim {
+    30% {
+         border-color: rgb(66,67,86);       
+         }
+ 
+	#center {
+		text-align: center;
+	}
+	#A {
+		margin-left: 20%;
+		margin-top: 10px;
+	}
+	#A2 {
+		margin-left: 20%;
+		margin-top: 0;
+	}
+	h4 {
+		margin-top: 20px;
+		margin-bottom: 10px;
+	}
+</style>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+	<script type="text/javascript">
+		//Get the geolocation of the user
+		let lat, long;
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(showPosition);
+		} else {
+			console.log("Geolocation not supported");
+		}
+
+		function showPosition(result) {
+			lat = result.coords.latitude;
+			long = result.coords.longitude;
+		}
+
+		
+		function resultOut(result) {
+			
+			$("#spinner").attr("id", "A");
+			//if zip not valid
+			if (result === "") {
+				document.body.style.backgroundImage =
+				"url('https://www.metoffice.gov.uk/binaries/content/gallery/metofficegovuk/hero-images/science/weather-forecast-background.jpg')";
+				return $("#A").html("City Not Found: Zip inValid");
+			}
+			r = JSON.parse(result);
+			//Changes the background according to weather
+			backgroundImg(r.weather[0].icon, r.weather[0].main);
+			res = `City: ${r.name} <br>
+					Coordinates: ${r.coord.lat}, ${r.coord.lon} <br>
+					Temperature: ${r.main.temp}&#8457; <br>
+					Weather: ${r.weather[0].main}`;
+			res2 = `Description: ${r.weather[0].description.replace(
+				/(^\w{1})|(\s+\w{1})/g,
+				(letter) => letter.toUpperCase()
+			)} <br>
+					Humidity: ${r.main.humidity}% <br>
+					Wind Speed: ${r.wind.speed} MPH <br>
+					Sunrise/epoch: ${new Date(r.sys.sunrise * 1000).toString()} <br>
+					Currently: ${new Date(r.dt * 1000).toString()} <br>`;
+			$("#A").html(res);
+			resMid = $(
+				`<img src=http://openweathermap.org/img/wn/${r.weather[0].icon}.png>`
+			).appendTo("#A");
+			$("#A2").html(res2);
+		}
+
+		function backgroundImg(icon, main) {
+			//depending on the weather icon change the background img
+			switch (icon) {
+				//if the weather is thunderstorm (day or night)
+				case "11d":
+				case "11n":
+					document.body.style.backgroundImage =
+						"url('https://goldwallpapers.com/uploads/posts/thunderstorm-wallpapers/thunderstorm_wallpapers_025.jpg')";
+					break;
+				//if the weather is drizzle (day or night)
+				case "09d":
+				case "09n":
+					document.body.style.backgroundImage =
+						"url('https://images.wallpaperscraft.com/image/glass_drops_rain_124212_1280x720.jpg')";
+					break;
+				//if the weather is rain and its day
+				case "10d":
+					document.body.style.backgroundImage =
+						"url('https://moneymarketing.co.za/wp-content/uploads/2019/12/Heavy-rain-1024x458.jpeg')";
+					break;
+				//if the weatehr is rain and its night
+				case "10n":
+					document.body.style.backgroundImage =
+						"url('http://getwallpapers.com/wallpaper/full/8/b/b/770041-download-free-rainy-day-background-1936x1080-xiaomi.jpg')";
+					break;
+				//if the weather is freezing rain or snow and its day
+				case "13d":
+					//if its rain
+					if (main === "Rain") {
+						document.body.style.backgroundImage =
+				        "url('https://fthmb.tqn.com/hQa5nfpZa_rdermM-ZsqvXmfmRU=/2124x1416/filters:fill(auto,1)/GettyImages-550752037-56e0a3d75f9b5854a9f85b1d.jpg')";
+					}
+					//if its snow
+					else {
+						document.body.style.backgroundImage =
+							"url('http://img.fliptab.io/snow/1920x1200/127420269.jpg')";
+					}
+					break;
+				//if the weather is freezing rain or snow and its night
+				case "13n":
+					//if its rain
+					if (main === "Rain") {
+						document.body.style.backgroundImage =
+							"url('https://wallpaperaccess.com/full/102663.jpg')";
+					}
+					//if its snow
+					else {
+						document.body.style.backgroundImage =
+							"url('http://www.larrybrunt.com/wp-content/uploads/2016/02/NightSnow_001.jpg')";
+					}
+					break;
+				//if the weather is anyone of (Mist, Smoke, Haze, Dust, Fod, Sand, Dust, Ash, Squall, Tornado) (day or night)
+				case "50d":
+				case "50n":
+					document.body.style.backgroundImage =
+						"url('https://agrilifetoday.tamu.edu/wp-content/uploads/2014/03/Panhandle-dust-strom-hr.jpg')";
+					break;
+				//if the weather is clear and its day
+				case "01d":
+					document.body.style.backgroundImage =
+						"url('https://img.huffingtonpost.com/asset/58d500ef1400008806071506.jpeg?ops=2000_1000')";
+					break;
+				//if the weather is clear and its night
+				case "01n":
+					document.body.style.backgroundImage =
+						"url('https://wallpaperstream.com/wallpapers/thumbnails/night-sky/Clear-Night-Sky-Stars-Wallpaper_thumb2x.jpg')";
+					break;
+				//if the weather is coludy and its day
+				case "02d":
+				case "03d":
+				case "04d":
+					document.body.style.backgroundImage =
+						"url('https://www.farmersalmanac.com/wp-content/uploads/2011/09/Clouds-Predict-Local-Weather-i861387936.jpg')";
+					break;
+				//if the weather is coludy and its night
+				case "02n":
+				case "03n":
+				case "04n":
+					document.body.style.backgroundImage =
+						"url('https://jooinn.com/images/night-scene-54.png')";
+					break;
+				//or just change the img back to default
+				default:
+					document.body.style.backgroundImage =
+						"url('https://www.slsc.org/wp-content/uploads/2018/12/extremeweather.jpg')";
+					break;
+			}
+		}
+
+		$(document).ready(function () {
+			//if the zipcode button is clicked
+			$("#btn").click(function () {
+				var zip = $("#zip").val();
+				//if the zip value is not empty
+				if (zip != "") {
+					//make a GET request with zip as data
+					$.ajax({
+						type: "GET",
+						url: "weather.php",
+						data: "zip=" + zip,
+						beforeSend: function () {
+							$("#A").html("");
+							$("#A2").html("");
+							$("#A").attr("id", "spinner");
+						},
+						error: function (xhr, status, error) {
+							alert("Error Message: Code" + xhr.status);
+						},
+						success: function (result) {
+							resultOut(result);
+						},
+					});
+				}
+			});
+		});
+
+		$(document).ready(function () {
+			//if the users wants geolocation
+			$("#curBtn").click(function () {
+				
+				$("#zip").val("");
+				//make a GET request with long and lat as data
+				$.ajax({
+					type: "GET",
+					url: "weather.php",
+					data: { lat: lat, long: long },
+					beforeSend: function () {
+						$("#A").html("");
+						$("#A2").html("");
+						$("#A").attr("id", "spinner");
+					},
+					error: function (xhr, status, error) {
+						alert("Error Message: Code" + xhr.status);
+					},
+					success: function (result) {
+						resultOut(result);
+					},
+				});
+			});
+		});
+	</script>
+</head>
+<title>Weather</title>
+<div id="left">
+	<div id="center">
+		<h4>Weather</h4>
+		<input id="zip" type="Number" name="zip" autocomplete="off"/>
+		<button id="btn" type="button" name="btn">Check Zip</button>
+		<button id="curBtn" type="button" name="btn">Get Location</button>
+	</div>
+	<div id="A"></div>
+	<div id="A2"></div>
+</div>
